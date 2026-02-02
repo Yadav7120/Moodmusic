@@ -1,0 +1,7 @@
+{
+  "name": "Kadayadi music player ",
+  "description": "An AI-powered emotional support music player that detects your mood and plays the perfect track.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
