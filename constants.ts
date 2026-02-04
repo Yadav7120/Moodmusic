@@ -30,42 +30,31 @@ const lyricsTemplates: Record<Emotion, string[]> = {
   [Emotion.Disgusted]: ["Bitter taste of a faded dream", "Tearing at the silver seam", "Turning over a brand new leaf", "Finding solace in the brief"],
 };
 
-// Expanded Audio Sources to ensure unique playback per metadata
-const AUDIO_SOURCES = [
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3',
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3',
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3',
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3',
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3',
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3',
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3',
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3',
-];
+// Expanded Audio Sources pool (SoundHelix provides dozens of indexed MP3s)
+const AUDIO_SOURCES = Array.from({ length: 30 }, (_, i) => `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${i + 1}.mp3`);
 
 const generateSong = (id: string, title: string, artist: string, emotion: Emotion, genre: string, year: string, isTopTier = false): Song => {
-  // Use a stable deterministic index for the URL to prevent mismatches
-  const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const sourceIndex = hash % AUDIO_SOURCES.length;
+  // Use a more complex hash that includes the ID and artist to ensure unique selection
+  const key = `${id}-${artist}-${title}`;
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) {
+    hash = ((hash << 5) - hash) + key.charCodeAt(i);
+    hash |= 0; 
+  }
+  const sourceIndex = Math.abs(hash) % AUDIO_SOURCES.length;
+  
   return {
     id,
     title,
     artist,
     albumArt: `https://picsum.photos/seed/${id}/600/600`,
-    duration: 160 + Math.floor(Math.random() * 80),
+    duration: 180 + (hash % 60), // Semi-unique duration for the UI
     url: AUDIO_SOURCES[sourceIndex],
     emotion,
     genre,
     year,
     isTopTier,
-    description: `A ${isTopTier ? 'high-energy' : 'soulful'} ${genre} track that resonates with ${emotion} feelings.`,
+    description: `A ${isTopTier ? 'premier' : 'soulful'} ${genre} masterpiece that perfectly resonates with a ${emotion} state of mind.`,
     lyrics: lyricsTemplates[emotion],
   };
 };
@@ -73,81 +62,81 @@ const generateSong = (id: string, title: string, artist: string, emotion: Emotio
 export const PLAYLISTS: Record<Emotion, Playlist> = {
   [Emotion.Happy]: {
     emotion: Emotion.Happy,
-    title: "Vibrant Energy",
-    description: "Uplifting beats and Malayalam blockbusters.",
+    title: "Vibrant Vibes",
+    description: "Uplifting Malayalam hits and bright global rhythms.",
     songs: [
-      generateSong('ml-h-minnal', 'Thee Minnal', 'Minnal Murali', Emotion.Happy, 'Malayalam Pop', '2021', true),
+      generateSong('ml-h-illu', 'Illuminati', 'Sushin Shyam (Aavesham)', Emotion.Happy, 'Malayalam Rap', '2024', true),
+      generateSong('ml-h-mini', 'Mini Maharani', 'Premalu', Emotion.Happy, 'Malayalam Indie', '2024', true),
+      generateSong('ml-h-jaada', 'Jaada', 'Aavesham', Emotion.Happy, 'Malayalam Pop', '2024', true),
+      generateSong('ml-h-olele', 'Olele', 'Thallumaala', Emotion.Happy, 'Malayalam Dance', '2022', true),
       generateSong('ml-h-kudu', 'Kudukku', 'Love Action Drama', Emotion.Happy, 'Malayalam Dance', '2019', true),
-      generateSong('ml-h-illu', 'Illuminati', 'Aavesham (Sushin Shyam)', Emotion.Happy, 'Malayalam Rap', '2024', true),
-      generateSong('ml-h-premalu', 'Mini Maharani', 'Premalu', Emotion.Happy, 'Malayalam Indie', '2024', true),
-      generateSong('ml-h-vibe', 'Jaada', 'Aavesham', Emotion.Happy, 'Malayalam Pop', '2024', true),
-      generateSong('h-global-1', 'Sunlight', 'Elias Thorne', Emotion.Happy, 'Indie', '2023'),
-      generateSong('h-global-2', 'Golden fields', 'Aria Bloom', Emotion.Happy, 'Folk', '2024', true),
+      generateSong('h-g-1', 'Sunlight', 'Elias Thorne', Emotion.Happy, 'Indie Pop', '2023'),
+      generateSong('h-g-2', 'Skyward', 'Aria Bloom', Emotion.Happy, 'Folk', '2024', true),
     ]
   },
   [Emotion.Sad]: {
     emotion: Emotion.Sad,
-    title: "Quiet Solace",
-    description: "Melodious ballads and deep reflections.",
+    title: "Soulful Rain",
+    description: "Soothing tracks for reflective and quiet moments.",
     songs: [
       generateSong('ml-s-uyire', 'Uyire', 'Gauthamante Radham', Emotion.Sad, 'Malayalam Ballad', '2020', true),
-      generateSong('ml-s-kanmizhi', 'Kanmizhi', 'Charlie', Emotion.Sad, 'Malayalam Classic', '2015', true),
-      generateSong('ml-s-malare', 'Malare', 'Premam', Emotion.Sad, 'Malayalam Romance', '2015', true),
-      generateSong('ml-s-nilav', 'Pavizha Mazha', 'Athiran', Emotion.Sad, 'Malayalam Melody', '2019', true),
-      generateSong('s-global-1', 'Fading Light', 'Nocturne', Emotion.Sad, 'Ambient', '2023'),
-      generateSong('s-global-2', 'Echoes', 'Sora', Emotion.Sad, 'Neo-Classical', '2022', true),
+      generateSong('ml-s-malare', 'Malare', 'Premam', Emotion.Sad, 'Malayalam Classic', '2015', true),
+      generateSong('ml-s-kanmizhi', 'Kanmizhi', 'Charlie', Emotion.Sad, 'Malayalam Soul', '2015', true),
+      generateSong('ml-s-kamini', 'Kamini', 'Anugraheethan Antony', Emotion.Sad, 'Malayalam Melody', '2021', true),
+      generateSong('s-g-1', 'Afterglow', 'Nocturne', Emotion.Sad, 'Ambient', '2023'),
+      generateSong('s-g-2', 'Quiet Room', 'Sora', Emotion.Sad, 'Neo-Classical', '2022', true),
     ]
   },
   [Emotion.Neutral]: {
     emotion: Emotion.Neutral,
-    title: "Inner Balance",
-    description: "Ambient sounds for focus and calm.",
+    title: "Balanced Flow",
+    description: "Steady Malayalam melodies for focused concentration.",
     songs: [
-      generateSong('ml-n-kumbalangi', 'Cherathukal', 'Kumbalangi Nights', Emotion.Neutral, 'Malayalam Soul', '2019', true),
-      generateSong('ml-n-manjummel', 'Kanmani Anbodu (Cover)', 'Manjummel Boys', Emotion.Neutral, 'Malayalam Classic', '2024', true),
-      generateSong('ml-n-ambili', 'Aaradhike', 'Ambili', Emotion.Neutral, 'Malayalam Indie', '2019', true),
-      generateSong('n-global-1', 'Steady Pulse', 'Ohm', Emotion.Neutral, 'Minimal', '2023'),
-      generateSong('n-global-2', 'Paper Planes', 'The Middles', Emotion.Neutral, 'Soft Rock', '2024'),
+      generateSong('ml-n-cherat', 'Cherathukal', 'Kumbalangi Nights', Emotion.Neutral, 'Malayalam Soul', '2019', true),
+      generateSong('ml-n-kanmani', 'Kanmani Anbodu (Cover)', 'Manjummel Boys', Emotion.Neutral, 'Malayalam Indie', '2024', true),
+      generateSong('ml-n-aaradh', 'Aaradhike', 'Ambili', Emotion.Neutral, 'Malayalam Indie', '2019', true),
+      generateSong('n-g-1', 'Steady State', 'Ohm', Emotion.Neutral, 'Minimalist', '2023'),
+      generateSong('n-g-2', 'Midday', 'The Middles', Emotion.Neutral, 'Soft Rock', '2024'),
     ]
   },
   [Emotion.Angry]: {
     emotion: Emotion.Angry,
-    title: "Release & Ground",
-    description: "Hard-hitting rhythms to channel energy.",
+    title: "Inner Fire",
+    description: "Hard-hitting rhythms and powerful vocal layers.",
     songs: [
       generateSong('ml-a-galatta', 'Galatta', 'Aavesham', Emotion.Angry, 'Malayalam Rock', '2024', true),
-      generateSong('ml-a-fire', 'The Fire Within', 'Action Hits', Emotion.Angry, 'Malayalam Alternative', '2023', true),
-      generateSong('a-global-1', 'Thunderclap', 'Forge', Emotion.Angry, 'Alternative Rock', '2024', true),
-      generateSong('a-global-2', 'Breaking Point', 'Viper', Emotion.Angry, 'Industrial', '2023'),
+      generateSong('ml-a-fire', 'The Fire Within', 'Malayalam Rock Ensemble', Emotion.Angry, 'Rock', '2023', true),
+      generateSong('a-g-1', 'Thunderclap', 'Forge', Emotion.Angry, 'Alternative Rock', '2024', true),
+      generateSong('a-g-2', 'Vortex', 'Viper', Emotion.Angry, 'Industrial', '2023'),
     ]
   },
   [Emotion.Surprised]: {
     emotion: Emotion.Surprised,
-    title: "Spark of Wonder",
-    description: "Playful and experimental sounds.",
+    title: "Sonic Shock",
+    description: "Playful electronic textures and unexpected shifts.",
     songs: [
-      generateSong('ml-su-kannil', 'Kannil Pettole', 'Thallumaala', Emotion.Surprised, 'Malayalam Electronic', '2022', true),
-      generateSong('su-global-1', 'The Reveal', 'Magic Mirror', Emotion.Surprised, 'Experimental', '2024'),
-      generateSong('su-global-2', 'Neon Dream', 'Spark', Emotion.Surprised, 'Hyperpop', '2023', true),
+      generateSong('ml-su-kannil', 'Kannil Pettole', 'Thallumaala', Emotion.Surprised, 'Electronic', '2022', true),
+      generateSong('su-g-1', 'Neon Pulse', 'Magic Mirror', Emotion.Surprised, 'Experimental', '2024'),
+      generateSong('su-g-2', 'Flicker', 'Neon Dream', Emotion.Surprised, 'Hyperpop', '2023', true),
     ]
   },
   [Emotion.Fearful]: {
     emotion: Emotion.Fearful,
-    title: "Safe Haven",
-    description: "Enveloping cinematic textures for comfort.",
+    title: "Safe Harbor",
+    description: "Ambient cinematic scores to provide comfort and security.",
     songs: [
       generateSong('ml-f-2018', 'Bhoomi', '2018 Movie', Emotion.Fearful, 'Atmospheric', '2023', true),
-      generateSong('f-global-1', 'Guardian', 'Soft Whispers', Emotion.Fearful, 'Choral', '2023'),
-      generateSong('f-global-2', 'Enclosure', 'The Fortress', Emotion.Fearful, 'Cinematic', '2024', true),
+      generateSong('f-g-1', 'Shield', 'Guardian', Emotion.Fearful, 'Choral', '2023'),
+      generateSong('f-g-2', 'Sanctuary', 'The Fortress', Emotion.Fearful, 'Cinematic', '2024', true),
     ]
   },
   [Emotion.Disgusted]: {
     emotion: Emotion.Disgusted,
-    title: "Mental Reset",
-    description: "Pure tones to wash away the noise.",
+    title: "Pure Reset",
+    description: "Clean tones and minimalist compositions to reset the mind.",
     songs: [
-      generateSong('d-global-1', 'Citrus Bloom', 'Verde', Emotion.Disgusted, 'Modern Classical', '2024', true),
-      generateSong('d-global-2', 'Washing Away', 'Aquifer', Emotion.Disgusted, 'Chillout', '2023'),
+      generateSong('d-g-1', 'Crystal Morning', 'Verde', Emotion.Disgusted, 'Modern Classical', '2024', true),
+      generateSong('d-g-2', 'Aquatic', 'Aquifer', Emotion.Disgusted, 'Chillout', '2023'),
     ]
   },
 };
