@@ -38,7 +38,10 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
       // Force reload the source
       audioRef.current.load();
       if (isPlaying) {
-        audioRef.current.play().catch(err => console.log("Playback interrupted/blocked:", err));
+        audioRef.current.oncanplay = () => {
+          audioRef.current?.play().catch(err => console.log("Playback interrupted/blocked:", err));
+          if (audioRef.current) audioRef.current.oncanplay = null;
+        };
       }
     }
   }, [currentSong?.id]); // Strictly bound to ID to prevent mismatches
