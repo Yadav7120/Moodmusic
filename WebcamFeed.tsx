@@ -85,7 +85,7 @@ export const WebcamFeed: React.FC<WebcamFeedProps> = ({
       
       const base64Data = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
 
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: "AIzaSyCdkQLnB5qZyRa091UHz-UZB5jb6H-uNQw" });
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: [
